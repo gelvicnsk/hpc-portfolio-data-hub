@@ -17,8 +17,8 @@ jobs:
     name: Lint (ruff)
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - run: pip install ruff
@@ -45,8 +45,8 @@ jobs:
       # active les tests d'intégration du chargeur (tests/test_loader.py)
       PG_TEST_DSN: postgresql://hub:ci_password@localhost:5432/hpc_test
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
@@ -81,8 +81,8 @@ jobs:
       DATA_DIR: ${{ github.workspace }}/data
       DO_NOT_TRACK: "1"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
@@ -104,7 +104,7 @@ jobs:
 
       - name: Publier les artefacts dbt
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dbt-artifacts
           path: |
@@ -116,6 +116,6 @@ jobs:
     name: Build des images Docker
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: cp .env.example .env
       - run: docker compose build

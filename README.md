@@ -1,5 +1,7 @@
 # HPC Portfolio Data Hub
 
+![CI](https://github.com/gelvicnsk/hpc-portfolio-data-hub/actions/workflows/ci.yml/badge.svg)
+
 Mini **Enterprise Data Hub** pour piloter un portefeuille de projets de supercalculateurs
 et situer le constructeur sur son marché grâce au **TOP500**.
 Stack : **PostgreSQL · dbt · DuckDB · FastAPI · Docker**, tests et CI inclus.
