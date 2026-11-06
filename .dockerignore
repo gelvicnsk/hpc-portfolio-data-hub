@@ -1,0 +1,22 @@
+# Contexte de build minimal : les données sont montées en volume, pas copiées dans l'image.
+.git
+.github
+.env
+.venv
+venv
+**/__pycache__
+**/*.py[cod]
+.pytest_cache
+.ruff_cache
+.mypy_cache
+
+dbt/target
+dbt/dbt_packages
+dbt/logs
+logs
+
+data/
+docs/
+*.duckdb
+*.md
+!README.md
