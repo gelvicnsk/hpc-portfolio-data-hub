@@ -1,0 +1,64 @@
+project_id,client,country,segment,system_type,contract_value_eur,start_date,planned_delivery,actual_delivery,status
+P0001,Centre de calcul Helios,Germany,recherche,BullSequana XH3000 GPU,41967000,2025-06-24,2027-05-24,,en_cours
+P0002,Centre de calcul Helios,Germany,recherche,BullSequana XH3000,8353000,2025-04-22,2027-05-22,,en_cours
+P0003,Consortium EuroSim,Italy,recherche,BullSequana XH2000,27416000,2026-03-01,2028-04-29,,en_cours
+P0004,Laboratoire Boreal,Finland,recherche,Extension de cluster,15241000,2025-12-28,2026-10-28,,en_cours
+P0005,Centre de calcul Helios,Germany,recherche,BullSequana XH3000 GPU,13111000,2026-05-12,2027-11-10,,en_cours
+P0006,Service meteo Nimbus,France,meteo,Extension de cluster,12486000,2024-06-15,2025-06-15,2025-08-10,livre
+P0007,Pharma Genomia,Belgium,industrie,Extension de cluster,16246000,2023-08-31,2024-06-30,2024-06-22,livre
+P0008,Service meteo Nimbus,France,meteo,Stockage HPC,6273000,2024-07-15,2026-06-14,2026-06-01,livre
+P0009,Groupe energie Voltaire,France,industrie,BullSequana XH3000 GPU,21915000,2025-09-27,2027-03-28,,en_cours
+P0010,Agence defense Rempart,France,defense,Extension de cluster,31770000,2025-09-28,2026-10-28,2026-10-25,livre
+P0011,Universite Polaris,Netherlands,academique,BullSequana XH3000 GPU,14052000,2025-07-05,2027-04-04,,en_cours
+P0012,Centre de calcul Helios,Germany,recherche,Extension de cluster,20839000,2024-12-09,2026-07-10,2026-07-15,livre
+P0013,Centre de calcul Helios,Germany,recherche,Stockage HPC,11873000,2024-07-06,2026-09-04,2026-08-24,livre
+P0014,Laboratoire Boreal,Finland,recherche,BullSequana XH3000,28158000,2026-06-17,2028-09-15,,en_cours
+P0015,Campus Numerique Sud,France,academique,BullSequana XH2000,31608000,2024-12-22,2025-11-21,2024-12-06,livre
+P0016,Campus Numerique Sud,France,academique,BullSequana XH3000,6136000,2023-06-12,2024-06-11,2024-05-28,livre
+P0017,Direction simulation Egide,France,defense,BullSequana XH2000,26903000,2022-09-22,2025-01-20,2025-01-13,livre
+P0018,Service meteo Nimbus,France,meteo,BullSequana XH3000 GPU,4894000,2023-01-27,2024-04-27,2024-06-03,livre
+P0019,Universite Copernic,Poland,academique,Extension de cluster,12807000,2026-04-28,2027-09-27,,en_cours
+P0020,Automobile Cinetique,Spain,industrie,BullSequana XH3000 GPU,7655000,2023-03-05,2025-03-04,2025-02-28,livre
+P0021,Consortium EuroSim,Italy,recherche,BullSequana XH2000,22294000,2024-01-18,2026-01-17,2026-01-05,livre
+P0022,Consortium EuroSim,Italy,recherche,BullSequana XH2000,18358000,2022-02-02,2024-03-03,2024-04-12,livre
+P0023,Centre de calcul Helios,Germany,recherche,BullSequana XH3000,21941000,2024-12-02,2026-10-02,2026-09-18,livre
+P0024,Service meteo Nimbus,France,meteo,BullSequana XH2000,10121000,2024-12-20,2025-12-20,2025-12-07,livre
+P0025,Automobile Cinetique,Spain,industrie,BullSequana XH3000,14737000,2024-08-11,2026-02-09,2026-03-02,livre
+P0026,Automobile Cinetique,Spain,industrie,BullSequana XH2000,150000000,2024-02-06,2026-04-06,2026-03-26,livre
+P0027,Consortium EuroSim,Italy,recherche,BullSequana XH2000,8660000,2024-07-27,2026-03-27,2026-03-19,livre
+P0028,Agence climat Cirrus,Germany,meteo,Stockage HPC,15605000,2023-04-12,2024-01-11,2024-01-12,livre
+P0029,Universite Copernic,Poland,academique,Extension de cluster,23173000,2022-06-28,2024-05-27,2024-05-22,livre
+P0030,Direction simulation Egide,France,defense,BullSequana XH3000 GPU,7552000,2023-06-11,2024-05-10,2024-11-23,livre
+P0031,Agence climat Cirrus,Germany,meteo,BullSequana XH3000 GPU,7986000,2023-09-01,2024-11-30,2025-01-19,livre
+P0032,Automobile Cinetique,Spain,industrie,Stockage HPC,26892000,2024-10-17,2026-06-17,2026-06-17,livre
+P0033,Universite Polaris,Netherlands,academique,Stockage HPC,74556000,2023-12-15,2026-06-14,,en_cours
+P0034,Pharma Genomia,Belgium,industrie,Extension de cluster,12435000,2022-07-10,2024-03-09,2024-02-23,livre
+P0035,Pharma Genomia,Belgium,industrie,Stockage HPC,5980000,2022-06-05,2024-07-04,2024-06-30,livre
+P0036,Laboratoire Boreal,Finland,recherche,BullSequana XH3000,67066000,2022-04-22,2024-07-21,2024-07-17,livre
+P0037,Institut de recherche Alpha,France,recherche,BullSequana XH2000,12619000,2022-11-19,2024-02-18,2024-03-08,livre
+P0038,Agence climat Cirrus,Germany,meteo,BullSequana XH3000,32134000,2026-03-14,2026-12-13,,en_cours
+P0039,Universite Polaris,Netherlands,academique,Stockage HPC,8166000,2024-04-10,2026-09-09,2026-10-21,livre
+P0040,Groupe energie Voltaire,France,industrie,BullSequana XH3000,27939000,2022-05-19,2024-06-17,2024-06-08,livre
+P0041,Automobile Cinetique,Spain,industrie,BullSequana XH2000,59981000,2023-05-09,2024-04-07,2023-04-19,livre
+P0042,Universite Polaris,Netherlands,academique,Extension de cluster,6783000,2024-03-30,2024-12-29,2025-01-07,livre
+P0043,Direction simulation Egide,France,defense,Extension de cluster,8352000,2023-11-19,2024-08-19,2024-10-16,livre
+P0044,Groupe energie Voltaire,France,industrie,BullSequana XH3000,9339000,2024-11-06,2027-01-05,,en_cours
+P0045,Service meteo Nimbus,France,meteo,BullSequana XH3000,11177000,2023-01-17,2024-05-17,2024-06-18,livre
+P0046,Universite Copernic,Poland,academique,BullSequana XH2000,122327000,2022-07-06,2024-06-04,2024-09-11,livre
+P0047,Automobile Cinetique,Spain,industrie,BullSequana XH2000,6271000,2025-05-09,2027-08-08,,en_cours
+P0048,Institut ocean Abysse,Spain,meteo,BullSequana XH3000,36233000,2022-11-12,2025-02-10,2025-02-09,livre
+P0049,Consortium EuroSim,Italy,recherche,Extension de cluster,14527000,2023-04-13,2025-01-10,2024-12-28,livre
+P0050,Institut de recherche Alpha,France,recherche,Extension de cluster,20703000,2025-09-25,2026-07-26,2026-08-26,livre
+P0051,Automobile Cinetique,Spain,industrie,BullSequana XH2000,23932000,2024-04-07,2026-05-07,,en_cours
+P0052,Consortium EuroSim,Italy,recherche,BullSequana XH2000,9058000,2023-01-10,2024-03-11,2024-05-07,livre
+P0053,Pharma Genomia,Belgium,industrie,BullSequana XH2000,22802000,2024-05-09,2026-09-07,2026-09-14,livre
+P0054,Pharma Genomia,Belgium,industrie,Stockage HPC,11775000,2025-10-05,2028-01-04,,en_cours
+P0055,Agence defense Rempart,France,defense,BullSequana XH3000 GPU,14348000,2024-11-20,2026-09-20,2026-09-17,livre
+P0056,Agence climat Cirrus,Germany,meteo,Extension de cluster,23494000,2025-09-30,2027-05-01,,en_cours
+P0057,Campus Numerique Sud,France,academique,BullSequana XH2000,4526000,2024-02-24,2025-02-23,2025-02-14,livre
+P0058,Universite Copernic,Poland,academique,BullSequana XH3000 GPU,57998000,2023-12-14,2025-05-14,2025-05-29,livre
+P0059,Aero Dynamique,Germany,industrie,BullSequana XH2000,86480000,2024-02-29,2026-03-30,2026-03-20,livre
+P0060,Agence defense Rempart,France,defense,BullSequana XH3000 GPU,43860000,2024-06-26,2026-02-24,2026-03-01,livre
+P0016,Campus Numerique Sud,France,academique,BullSequana XH3000,6136000,2023-06-12,2024-06-11,2024-05-28,livre
+P0049,Consortium EuroSim,Italy,recherche,Extension de cluster,14527000,2023-04-13,2025-01-10,2024-12-28,livre
+P0009,Groupe energie Voltaire,France,industrie,BullSequana XH3000 GPU,21915000,2025-09-27,2027-03-28,,en_cours

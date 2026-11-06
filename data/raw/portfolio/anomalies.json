@@ -1,0 +1,59 @@
+{
+  "seed": 42,
+  "as_of": "2026-10-31",
+  "row_counts": {
+    "projects": 63,
+    "milestones": 420,
+    "incidents": 248,
+    "costs": 1133
+  },
+  "anomalies": {
+    "delivery_before_start": {
+      "count": 2,
+      "ids": [
+        "P0015",
+        "P0041"
+      ]
+    },
+    "duplicate_projects": {
+      "count": 3,
+      "ids": [
+        "P0009",
+        "P0016",
+        "P0049"
+      ]
+    },
+    "negative_costs": {
+      "count": 4,
+      "ids": [
+        "P0003/2026-05-01",
+        "P0021/2024-06-01",
+        "P0045/2023-01-01",
+        "P0053/2025-09-01"
+      ]
+    },
+    "orphan_incidents": {
+      "count": 5,
+      "ids": [
+        "I00003",
+        "I00020",
+        "I00033",
+        "I00044",
+        "I00148"
+      ]
+    },
+    "incident_closed_before_opened": {
+      "count": 2,
+      "ids": [
+        "I00046",
+        "I00213"
+      ]
+    },
+    "invalid_severity": {
+      "count": 1,
+      "ids": [
+        "I00164"
+      ]
+    }
+  }
+}

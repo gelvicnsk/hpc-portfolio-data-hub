@@ -20,6 +20,8 @@ import pandas as pd
 import psycopg
 import pytest
 
+from pipeline.generate_portfolio import generate, write
+from pipeline.ingest.load_portfolio import load_portfolio
 from pipeline.ingest.load_top500 import find_top500_files, load_top500
 from pipeline.ingest.loader import iter_records, load_dataframe, pg_type
 
@@ -84,7 +86,14 @@ CREATE TABLE IF NOT EXISTS meta.load_log (
     started_at TIMESTAMPTZ NOT NULL DEFAULT now(), finished_at TIMESTAMPTZ, error_message TEXT
 );
 """
-TEST_TABLES = ("items_test", "top500_test")
+TEST_TABLES = (
+    "items_test",
+    "top500_test",
+    "projects_test",
+    "milestones_test",
+    "incidents_test",
+    "costs_test",
+)
 
 
 @pytest.fixture
@@ -156,3 +165,21 @@ def test_top500_editions_are_independent_partitions(
     (tmp_path / "TOP500_202506.csv").unlink()
     load_top500(conn, tmp_path, table="top500_test")
     assert _count(conn, "SELECT count(DISTINCT edition) FROM raw.top500_test") == 2
+
+
+@integration
+def test_load_portfolio_keeps_raw_text_and_anomalies(
+    conn: psycopg.Connection, tmp_path: Path
+) -> None:
+    data = generate(seed=42)
+    write(data, tmp_path, seed=42)
+    loaded = load_portfolio(conn, tmp_path, table_suffix="_test")
+    assert loaded == {name: len(df) for name, df in data.tables().items()}
+    # raw ne corrige rien : doublons et coûts négatifs sont toujours là pour dbt
+    assert _count(conn, "SELECT count(*) - count(DISTINCT project_id) FROM raw.projects_test") == 3
+    assert _count(conn, "SELECT count(*) FROM raw.costs_test WHERE cost_eur::numeric < 0") == 4
+
+
+def test_load_portfolio_requires_all_files(tmp_path: Path) -> None:
+    with pytest.raises(FileNotFoundError, match="generate_portfolio"):
+        load_portfolio(None, tmp_path)  # type: ignore[arg-type]
