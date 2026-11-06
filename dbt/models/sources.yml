@@ -11,6 +11,13 @@ sources:
     tables:
       - name: projects
         description: Projets du portefeuille HPC (synthétiques, data/raw/portfolio/projects.csv).
+        columns:
+          - name: project_id
+            tests:
+              - unique:
+                  name: source_projects_unique_project_id
+                  config:
+                    severity: warn   # anomalie injectée : 3 doublons dans l'export, éliminés en staging
       - name: milestones
         description: Jalons des projets (commande, fabrication, livraison, recette…).
       - name: incidents

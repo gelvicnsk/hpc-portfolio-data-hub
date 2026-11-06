@@ -36,7 +36,8 @@ select
     -- contrôles qualité
     projects.project_id is not null                                as has_known_project,
     (incidents.closed_at is null
-        or incidents.closed_at >= incidents.opened_at)              as has_consistent_dates
+        or incidents.closed_at >= incidents.opened_at)              as has_consistent_dates,
+    incidents.severity in ('low', 'medium', 'high', 'critical')     as has_valid_severity
 
 from incidents
 left join projects

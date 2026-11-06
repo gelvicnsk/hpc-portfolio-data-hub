@@ -8,6 +8,7 @@ with incidents as (
     select * from {{ ref('int_project_incidents') }}
     where has_known_project      -- écarte les clés orphelines
       and has_consistent_dates   -- écarte closed_at < opened_at
+      and has_valid_severity     -- écarte les sévérités hors référentiel
 
 )
 

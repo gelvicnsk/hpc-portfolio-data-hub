@@ -1,0 +1,94 @@
+version: 2
+
+# Tests du staging portefeuille.
+# Les tests « warn » correspondent aux anomalies injectées (data/raw/portfolio/anomalies.json) :
+# ils doivent les détecter sans bloquer le pipeline. Les tests « error » (défaut) protègent
+# l'intégrité du modèle et doivent toujours passer.
+
+models:
+  - name: stg_projects
+    description: Projets du portefeuille HPC, typés et dédoublonnés.
+    columns:
+      - name: project_id
+        tests: [unique, not_null]     # passe : les doublons de la source sont éliminés ici
+      - name: segment
+        tests:
+          - accepted_values:
+              arguments:
+                values: [recherche, academique, meteo, defense, industrie]
+      - name: status
+        tests:
+          - accepted_values:
+              arguments:
+                values: [livre, en_cours]
+      - name: contract_value_eur
+        tests: [not_null]
+      - name: start_date
+        tests: [not_null]
+      - name: had_duplicates
+        description: Vrai si le projet apparaissait plusieurs fois dans l'export source.
+
+  - name: stg_milestones
+    description: Jalons des projets (signature, fabrication, livraison, recette, mise en production).
+    columns:
+      - name: milestone_id
+        tests: [unique, not_null]
+      - name: project_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_projects')
+                field: project_id
+      - name: status
+        tests:
+          - accepted_values:
+              arguments:
+                values: [termine, en_retard, a_venir]
+
+  - name: stg_incidents
+    description: Incidents ouverts sur les projets, sans filtrage (voir fct_incidents).
+    tests:
+      - dbt_utils.expression_is_true:
+          name: incidents_closed_after_opened
+          arguments:
+            expression: "closed_at is null or closed_at >= opened_at"
+          config:
+            severity: warn          # anomalie injectée : 2 incidents
+    columns:
+      - name: incident_id
+        tests: [unique, not_null]
+      - name: project_id
+        tests:
+          - not_null
+          - relationships:
+              name: incidents_project_exists
+              arguments:
+                to: ref('stg_projects')
+                field: project_id
+              config:
+                severity: warn      # anomalie injectée : 5 clés orphelines
+      - name: severity
+        tests:
+          - accepted_values:
+              name: incidents_severity_in_referential
+              arguments:
+                values: [low, medium, high, critical]
+              config:
+                severity: warn      # anomalie injectée : 1 sévérité « urgent »
+
+  - name: stg_costs
+    description: Coûts et budgets mensuels par projet.
+    columns:
+      - name: cost_id
+        tests: [unique, not_null]
+      - name: project_id
+        tests:
+          - relationships:
+              arguments:
+                to: ref('stg_projects')
+                field: project_id
+      - name: cost_month
+        tests: [not_null]
+      - name: budget_eur
+        tests: [not_null]

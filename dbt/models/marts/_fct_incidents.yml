@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: fct_incidents
+    description: >
+      Incidents valides (projet connu, dates cohérentes, sévérité du référentiel).
+      Sert les KPI incidents ouverts / délai de résolution et GET /projects/{id}.
+    columns:
+      - name: incident_id
+        tests: [unique, not_null]
+      - name: project_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_projects')
+                field: project_id
+      - name: severity
+        tests:
+          - accepted_values:
+              arguments:
+                values: [low, medium, high, critical]
+      - name: severity_rank
+        tests: [not_null]
+      - name: resolution_hours
+        description: Délai de résolution en heures (null si l'incident est ouvert).
