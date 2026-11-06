@@ -1,0 +1,33 @@
+# Projet dbt du HPC Portfolio Data Hub
+# Une couche = un schéma PostgreSQL (créés et sécurisés par infra/postgres/init.sql ;
+# noms exacts grâce à macros/generate_schema_name.sql).
+name: hpc_hub
+version: "1.0.0"
+profile: hpc_hub
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  hpc_hub:
+    staging:
+      +schema: staging
+      +materialized: view        # léger, toujours à jour
+    intermediate:
+      +schema: intermediate
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table       # lu par l'API et exporté en Parquet : on matérialise
+
+seeds:
+  hpc_hub:
+    +schema: staging
+    vendor_mapping:
+      +column_types:
+        manufacturer_key: text
+        vendor_group: text

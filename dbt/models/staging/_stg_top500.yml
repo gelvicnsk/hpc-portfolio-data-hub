@@ -1,0 +1,48 @@
+version: 2
+
+models:
+  - name: stg_top500
+    description: >
+      Une ligne par système et par édition du TOP500. Constructeurs regroupés via le seed
+      vendor_mapping (Bull / Atos / Eviden -> Bull) ; libellés composés rattachés au premier
+      constructeur nommé. Dernier chargement retenu en cas de rechargement d'une édition.
+    columns:
+      - name: top500_entry_id
+        description: "Clé technique : édition + rang (ex. 2026-06-001)."
+        tests: [unique, not_null]
+      - name: edition
+        tests: [not_null]
+      - name: rank
+        tests: [not_null]
+      - name: manufacturer_raw
+        description: Libellé constructeur tel que publié par top500.org.
+        tests: [not_null]
+      - name: vendor_group
+        description: Groupe constructeur normalisé, utilisé pour les parts de marché.
+        tests: [not_null]
+      - name: is_vendor_mapped
+        description: >
+          Faux si le constructeur n'est pas dans le seed (nouveau venu dans une édition).
+          Test en warn : signale qu'il faut compléter vendor_mapping.csv, sans bloquer le pipeline.
+        tests:
+          - accepted_values:
+              arguments:
+                values: [true]
+                quote: false
+              config:
+                severity: warn
+      - name: rmax_tflops
+        tests: [not_null]
+      - name: has_power_data
+        description: >
+          Environ 40 % des systèmes seulement déclarent leur consommation (juin 2026 : 200/500) ;
+          l'efficacité énergétique est calculée sur ce sous-ensemble.
+
+seeds:
+  - name: vendor_mapping
+    description: Correspondance libellé constructeur normalisé -> groupe constructeur.
+    columns:
+      - name: manufacturer_key
+        tests: [unique, not_null]
+      - name: vendor_group
+        tests: [not_null]

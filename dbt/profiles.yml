@@ -1,0 +1,14 @@
+# Aucun secret ici : tout vient des variables d'environnement (.env en local,
+# variables du service en CI). Lancer dbt avec --profiles-dir . ou DBT_PROFILES_DIR.
+hpc_hub:
+  target: "{{ env_var('DBT_TARGET', 'dev') }}"
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'localhost') }}"
+      port: "{{ env_var('POSTGRES_PORT', '5432') | as_number }}"
+      user: "{{ env_var('POSTGRES_USER') }}"
+      password: "{{ env_var('POSTGRES_PASSWORD') }}"
+      dbname: "{{ env_var('POSTGRES_DB') }}"
+      schema: public
+      threads: 4
