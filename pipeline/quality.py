@@ -22,7 +22,8 @@ from pathlib import Path
 from typing import Any
 
 import psycopg
-from psycopg.conninfo import make_conninfo
+
+from pipeline.db import connect
 
 logger = logging.getLogger(__name__)
 
@@ -125,16 +126,6 @@ def load_test_results(conn: psycopg.Connection, results: list[DbtTestResult]) ->
     return len(results)
 
 
-def conninfo_from_env() -> str:
-    return make_conninfo(
-        host=os.getenv("POSTGRES_HOST", "localhost"),
-        port=os.getenv("POSTGRES_PORT", "5432"),
-        dbname=os.environ["POSTGRES_DB"],
-        user=os.environ["POSTGRES_USER"],
-        password=os.environ["POSTGRES_PASSWORD"],
-    )
-
-
 def summarize(results: list[DbtTestResult]) -> dict[str, int]:
     summary: dict[str, int] = {}
     for r in results:
@@ -153,7 +144,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     results = parse_run_results(run_results_path, args.target_dir / "manifest.json")
-    with psycopg.connect(conninfo_from_env()) as conn:
+    with connect(autocommit=False) as conn:
         loaded = load_test_results(conn, results)
 
     logger.info("%d résultats de tests chargés — %s", loaded, summarize(results))

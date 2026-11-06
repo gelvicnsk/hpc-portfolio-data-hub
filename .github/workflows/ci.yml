@@ -1,0 +1,122 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: pip install ruff
+      - run: ruff check .
+      - run: ruff format --check .
+
+  test:
+    name: Tests (pytest)
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: hub
+          POSTGRES_PASSWORD: ci_password
+          POSTGRES_DB: hpc_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U hub -d hpc_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # active les tests d'intégration du chargeur (tests/test_loader.py)
+      PG_TEST_DSN: postgresql://hub:ci_password@localhost:5432/hpc_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: pytest -q
+
+  dbt:
+    name: dbt build (base éphémère)
+    runs-on: ubuntu-24.04
+    needs: test
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          # Base jetable, détruite en fin de job : identifiants de test uniquement
+          POSTGRES_USER: hub
+          POSTGRES_PASSWORD: ci_password
+          POSTGRES_DB: hpc_hub
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U hub -d hpc_hub"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: hpc_hub
+      POSTGRES_USER: hub
+      POSTGRES_PASSWORD: ci_password
+      API_DB_PASSWORD: ci_api_password
+      DBT_PROFILES_DIR: ${{ github.workspace }}/dbt
+      DATA_DIR: ${{ github.workspace }}/data
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Initialiser la base (schémas, meta, rôle api_reader)
+        run: psql "postgresql://hub:ci_password@localhost:5432/hpc_hub" -v ON_ERROR_STOP=1 -f infra/postgres/init.sql
+
+      - name: Préparer les données (synthétiques + extrait TOP500 de test)
+        run: |
+          python -m pipeline.generate_portfolio
+          mkdir -p data/raw/top500
+          cp tests/fixtures/top500_sample.csv data/raw/top500/TOP500_202506.csv
+
+      - name: Ingestion dans raw
+        run: |
+          python -m pipeline.ingest.load_portfolio
+          python -m pipeline.ingest.load_top500
+
+      - name: dbt build (seeds + modèles + tests)
+        working-directory: dbt
+        run: |
+          dbt deps
+          dbt build
+
+      - name: Charger les résultats qualité
+        run: python -m pipeline.quality --target-dir dbt/target
+
+      - name: Publier les artefacts dbt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbt-artifacts
+          path: |
+            dbt/target/run_results.json
+            dbt/target/manifest.json
+          if-no-files-found: ignore

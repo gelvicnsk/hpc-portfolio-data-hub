@@ -1,11 +1,37 @@
+# Secrets
 .env
+
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
 .venv/
-data/raw/top500/*
-!data/raw/top500/.gitkeep
-data/analytics/*
-!data/analytics/.gitkeep
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# dbt
 dbt/target/
 dbt/dbt_packages/
 dbt/logs/
+dbt/.user.yml
+logs/
+
+# Données
+# - TOP500 : à télécharger soi-même (licence top500.org), on ne versionne que le dossier
+data/raw/top500/*
+!data/raw/top500/.gitkeep
+# - Sorties analytiques (Parquet / DuckDB), régénérables
+data/analytics/*
+!data/analytics/.gitkeep
+*.duckdb
+*.duckdb.wal
+# data/raw/portfolio/ reste versionné : données synthétiques d'exemple
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store

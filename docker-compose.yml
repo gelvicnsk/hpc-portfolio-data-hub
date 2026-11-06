@@ -1,0 +1,21 @@
+# Lot 2 : PostgreSQL seul. Les services pipeline et api seront ajoutés aux lots suivants.
+name: hpc-portfolio-data-hub
+
+services:
+  postgres:
+    image: postgres:16
+    env_file: .env          # POSTGRES_DB / USER / PASSWORD + API_DB_PASSWORD (lu par init.sql)
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  pgdata:
