@@ -119,8 +119,14 @@ def render_table(
     table.scale(1, 1.6)
 
     # texte aligné à gauche, nombres (et %, j) alignés à droite
+    # (une valeur vide ou « – » ne rend pas la colonne textuelle)
     numeric = [
-        df[c].astype(str).str.replace(r"[\s%j–+\-.,]", "", regex=True).str.isdigit().all()
+        df[c]
+        .astype(str)
+        .str.replace(r"[\s%j–+\-.,]", "", regex=True)
+        .map(lambda v: v == "" or v.isdigit())
+        .all()
+        and not df[c].astype(str).str.fullmatch(r"\s*–?\s*").all()
         for c in df.columns
     ]
 
