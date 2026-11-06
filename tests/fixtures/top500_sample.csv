@@ -1,0 +1,9 @@
+Rank,Name,Computer,Site,Manufacturer,Country,Year,Segment,Total Cores,Rmax [TFlop/s],Rpeak [TFlop/s],Power (kW),Processor,Interconnect Family
+1,Sample System Alpha,"HPE Cray EX, AMD EPYC",National Lab A,HPE,United States,2024,Research,"9,000,000","1,500,000.00","2,500,000.00","25,000",AMD EPYC,Slingshot-11
+2,Sample System Bravo,"BullSequana XH3000, AMD EPYC",Research Centre B,Bull SAS,France,2023,Research,"1,200,000","250,000.50","350,000.00","8,000",AMD EPYC,Infiniband
+3,Sample System Charlie,"BullSequana XH3000, NVIDIA GH200",Supercomputing Centre C,EVIDEN,Germany,2025,Research,"4,800,000","800,000.00","980,000.00","13,000",NVIDIA Grace,Infiniband
+4,Sample System Delta,"BullSequana XH2000, Intel Xeon",Industrial Site D,Atos,Italy,2022,Industry,"680,000","120,000.00","175,000.00",,Intel Xeon Platinum,Infiniband
+5,Sample System Echo,"Fujitsu PRIMEHPC, A64FX",Institute E,Fujitsu,Japan,2020,Research,"7,600,000","440,000.00","530,000.00","29,900",A64FX,Tofu interconnect D
+6,Sample System Foxtrot,"ThinkSystem, Intel Xeon",Company F,Lenovo,United States,2023,Industry,"250,000","60,000.00","90,000.00","1,800",Intel Xeon Platinum,Infiniband
+7,Sample System Golf,"DGX SuperPOD, NVIDIA H100",Vendor Lab G,Nvidia,United States,2023,Vendor,"480,000","120,000.00","190,000.00","2,600",Intel Xeon Platinum,Infiniband
+8,Sample System Hotel,"BullSequana XH2000, AMD EPYC",University H,Eviden,Finland,2024,Academic,"360,000","95,000.00","130,000.00","3,100",AMD EPYC,Infiniband
