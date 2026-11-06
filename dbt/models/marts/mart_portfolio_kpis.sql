@@ -42,8 +42,9 @@ select
         / nullif(sum(total_budget_eur), 0), 2)                      as budget_variance_pct,
     count(*) filter (where is_over_budget)                          as n_projects_over_budget,
 
-    sum(n_open_incidents)                                           as n_open_incidents,
-    sum(n_critical_incidents)                                       as n_critical_incidents
+    -- sum(bigint) renvoie un numeric en PostgreSQL : on revient explicitement à un entier
+    sum(n_open_incidents)::bigint                                   as n_open_incidents,
+    sum(n_critical_incidents)::bigint                               as n_critical_incidents
 
 from scoped
 group by scope, scope_value

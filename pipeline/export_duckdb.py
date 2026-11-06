@@ -20,7 +20,6 @@ import logging
 import os
 import re
 import sys
-from decimal import Decimal
 from pathlib import Path
 
 import duckdb
@@ -49,13 +48,36 @@ def default_output_dir() -> Path:
     return Path(os.getenv("DATA_DIR", "data")) / "analytics"
 
 
-def _decimals_to_float(df: pd.DataFrame) -> pd.DataFrame:
-    """Les NUMERIC PostgreSQL arrivent en Decimal : on les passe en float pour Parquet."""
-    for col in df.columns:
-        sample = df[col].dropna()
-        if not sample.empty and isinstance(sample.iloc[0], Decimal):
-            df[col] = df[col].astype(float)
+# Types PostgreSQL (OID) -> types pandas, pour ne pas laisser pandas les deviner :
+# un entier avec des NULL deviendrait float, une colonne entièrement NULL n'aurait pas de type.
+PG_OID_TO_PANDAS: dict[int, str] = {
+    16: "boolean",  # bool
+    20: "Int64",  # int8 / bigint
+    21: "Int64",  # int2
+    23: "Int64",  # int4
+    700: "float64",  # float4
+    701: "float64",  # float8
+    1700: "float64",  # numeric (exact en base ; double suffit pour l'analytique)
+    25: "string",  # text
+    1043: "string",  # varchar
+}
+DATE_OIDS = {1082}  # date : forcées en DATE au moment de l'écriture (voir export)
+TIMESTAMP_OIDS = {1114, 1184}  # timestamp, timestamptz
+
+
+def to_typed_dataframe(rows: list[tuple], columns: list[tuple[str, int]]) -> pd.DataFrame:
+    """Construit le DataFrame en appliquant le type PostgreSQL de chaque colonne."""
+    df = pd.DataFrame(rows, columns=[name for name, _ in columns], dtype=object)
+    for name, oid in columns:
+        if oid in PG_OID_TO_PANDAS:
+            df[name] = df[name].astype(PG_OID_TO_PANDAS[oid])
+        elif oid in TIMESTAMP_OIDS:
+            df[name] = pd.to_datetime(df[name], utc=oid == 1184)
     return df
+
+
+def _date_columns(columns: list[tuple[str, int]]) -> list[str]:
+    return [name for name, oid in columns if oid in DATE_OIDS]
 
 
 def export(output_dir: Path) -> dict[str, int]:
@@ -64,18 +86,24 @@ def export(output_dir: Path) -> dict[str, int]:
     with connect() as conn:
         for name, (schema, table) in EXPORTS.items():
             with conn.cursor() as cur:
-                cur.execute(
-                    f'SELECT * FROM "{schema}"."{table}"'
-                )  # noms internes, pas d'entrée utilisateur
-                columns = [d.name for d in cur.description or []]
-                df = _decimals_to_float(pd.DataFrame(cur.fetchall(), columns=columns))
+                # noms de tables internes (EXPORTS), jamais d'entrée utilisateur
+                cur.execute(f'SELECT * FROM "{schema}"."{table}"')
+                columns = [(d.name, d.type_code) for d in cur.description or []]
+                df = to_typed_dataframe(cur.fetchall(), columns)
             path = output_dir / f"{name}.parquet"
-            duckdb.from_df(df).write_parquet(str(path))
+            # les dates restent des DATE (et non des TIMESTAMP), même quand la colonne est vide
+            casts = ", ".join(f'CAST("{c}" AS DATE) AS "{c}"' for c in _date_columns(columns))
+            select = f"SELECT * REPLACE ({casts}) FROM df" if casts else "SELECT * FROM df"
+            tmp_path = path.with_suffix(".parquet.tmp")
+            duckdb.sql(select).write_parquet(str(tmp_path))
+            os.replace(tmp_path, path)  # un lecteur ne voit jamais un fichier à moitié écrit
             counts[name] = len(df)
             logger.info("%-28s %6d lignes -> %s", name, len(df), path)
 
     database = output_dir / "hub.duckdb"
-    with duckdb.connect(str(database)) as con:
+    tmp_database = output_dir / "hub.duckdb.tmp"
+    tmp_database.unlink(missing_ok=True)
+    with duckdb.connect(str(tmp_database)) as con:
         con.execute(f"SET file_search_path = '{output_dir.resolve()}'")
         for name in EXPORTS:
             # nom de fichier seul : la base reste utilisable depuis l'hôte comme depuis le
@@ -83,6 +111,10 @@ def export(output_dir: Path) -> dict[str, int]:
             con.execute(
                 f"CREATE OR REPLACE VIEW {name} AS SELECT * FROM read_parquet('{name}.parquet')"
             )
+    # remplacement atomique : un notebook ou un CLI qui a ouvert hub.duckdb ne bloque pas
+    # l'export (DuckDB n'autorise qu'un processus écrivain) ; il lit l'ancienne version
+    # jusqu'à sa prochaine connexion
+    os.replace(tmp_database, database)
     logger.info("Base DuckDB : %s (%d vues)", database, len(EXPORTS))
     return counts
 
