@@ -1,4 +1,10 @@
+# docker compose up : postgres -> pipeline (ingestion + dbt + qualité + export) -> api
 name: hpc-portfolio-data-hub
+
+x-db-env: &db-env
+  # dans le réseau Docker, la base s'appelle « postgres » et écoute sur 5432
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
 
 services:
   postgres:
@@ -16,20 +22,36 @@ services:
       retries: 10
     restart: unless-stopped
 
+  pipeline:
+    build:
+      context: .
+      dockerfile: pipeline/Dockerfile
+    env_file: .env
+    environment:
+      <<: *db-env
+      DATA_DIR: /app/data
+    # même UID/GID que l'utilisateur hôte : les fichiers produits (Parquet, dbt/target)
+    # restent modifiables depuis WSL (valeurs écrites dans .env par « make env »)
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    volumes:
+      - ./data:/app/data
+      - ./dbt:/app/dbt
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
   api:
     build:
       context: .
       dockerfile: api/Dockerfile
     env_file: .env
-    environment:
-      # dans le réseau Docker, la base s'appelle « postgres » et écoute sur 5432
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: "5432"
+    environment: *db-env
     ports:
-      - "${API_PORT:-8000}:8000"
+      - "${API_PORT:-8001}:8000"
     depends_on:
-      postgres:
-        condition: service_healthy
+      pipeline:
+        condition: service_completed_successfully
     restart: unless-stopped
 
 volumes:

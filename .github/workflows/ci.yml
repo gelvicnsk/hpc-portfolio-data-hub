@@ -78,8 +78,8 @@ jobs:
       POSTGRES_USER: hub
       POSTGRES_PASSWORD: ci_password
       API_DB_PASSWORD: ci_api_password
-      DBT_PROFILES_DIR: ${{ github.workspace }}/dbt
       DATA_DIR: ${{ github.workspace }}/data
+      DO_NOT_TRACK: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -91,25 +91,16 @@ jobs:
       - name: Initialiser la base (schémas, meta, rôle api_reader)
         run: psql "postgresql://hub:ci_password@localhost:5432/hpc_hub" -v ON_ERROR_STOP=1 -f infra/postgres/init.sql
 
-      - name: Préparer les données (synthétiques + extrait TOP500 de test)
+      - name: Pipeline complet (génération, chargement, dbt build, qualité, export DuckDB)
         run: |
-          python -m pipeline.generate_portfolio
           mkdir -p data/raw/top500
           cp tests/fixtures/top500_sample.csv data/raw/top500/TOP500_202506.csv
+          python -m pipeline.run
 
-      - name: Ingestion dans raw
+      - name: Vérifier les anomalies détectées (6 alertes attendues)
         run: |
-          python -m pipeline.ingest.load_portfolio
-          python -m pipeline.ingest.load_top500
-
-      - name: dbt build (seeds + modèles + tests)
-        working-directory: dbt
-        run: |
-          dbt deps
-          dbt build
-
-      - name: Charger les résultats qualité
-        run: python -m pipeline.quality --target-dir dbt/target
+          test "$(psql "postgresql://hub:ci_password@localhost:5432/hpc_hub" -Atc \
+            "select count(*) from meta.v_latest_test_results where status = 'warn'")" = "6"
 
       - name: Publier les artefacts dbt
         if: always()
@@ -120,3 +111,11 @@ jobs:
             dbt/target/run_results.json
             dbt/target/manifest.json
           if-no-files-found: ignore
+
+  docker:
+    name: Build des images Docker
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp .env.example .env
+      - run: docker compose build
