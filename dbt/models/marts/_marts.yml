@@ -1,0 +1,86 @@
+version: 2
+
+models:
+  - name: dim_client
+    description: Clients du portefeuille (noms fictifs).
+    columns:
+      - name: client_id
+        tests: [unique, not_null]
+      - name: client_name
+        tests: [unique, not_null]
+
+  - name: dim_project
+    description: Projets avec attributs descriptifs et avancement des jalons.
+    columns:
+      - name: project_id
+        tests: [unique, not_null]
+      - name: client_id
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_client')
+                field: client_id
+
+  - name: fct_project_delivery
+    description: >
+      Une ligne par projet : délai de livraison, écart budgétaire, incidents.
+      Les projets aux dates incohérentes (anomalie) n'entrent pas dans les KPI de délai.
+    columns:
+      - name: project_id
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_project')
+                field: project_id
+      - name: is_on_time
+        description: Null si non livré ou dates incohérentes.
+      - name: delivery_delay_days
+        description: Livraison réelle - prévue, en jours (négatif = en avance).
+      - name: is_over_budget
+        description: Vrai si les coûts dépassent le budget de plus de 5 %.
+
+  - name: fct_costs_monthly
+    description: Coûts mensuels valides et cumuls par projet.
+    columns:
+      - name: cost_id
+        tests: [unique, not_null]
+      - name: cost_eur
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+
+  - name: mart_portfolio_kpis
+    description: KPI de portefeuille (global, par segment, par pays). Lu par GET /kpis/portfolio.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [scope, scope_value]
+    columns:
+      - name: scope
+        tests:
+          - accepted_values:
+              arguments:
+                values: [global, segment, country]
+      - name: on_time_delivery_pct
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 100
+
+  - name: mart_top500_vendor_share
+    description: >
+      Parts de marché des constructeurs TOP500 par édition, en nombre de systèmes et en
+      Rmax, évolution entre éditions et efficacité énergétique. Lu par GET /top500/vendors.
+    columns:
+      - name: vendor_share_id
+        tests: [unique, not_null]
+      - name: share_systems_pct
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 100

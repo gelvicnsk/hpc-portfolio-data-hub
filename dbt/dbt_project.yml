@@ -31,3 +31,7 @@ seeds:
       +column_types:
         manufacturer_key: text
         vendor_group: text
+
+vars:
+  # date de référence des données synthétiques du portefeuille (voir generate_portfolio.AS_OF)
+  as_of_date: "2026-10-31"
