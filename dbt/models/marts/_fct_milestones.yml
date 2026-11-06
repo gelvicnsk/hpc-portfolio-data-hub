@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: fct_milestones
+    description: Jalons des projets avec glissement en jours (négatif = en avance).
+    columns:
+      - name: milestone_id
+        tests: [unique, not_null]
+      - name: project_id
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_project')
+                field: project_id
