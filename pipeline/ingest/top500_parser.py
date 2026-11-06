@@ -36,8 +36,14 @@ COLUMN_ALIASES: dict[str, tuple[str, ...]] = {
     "segment": ("segment",),
     "cores": ("total_cores", "cores"),
     "power_kw": ("power_kw", "power"),
+    "energy_efficiency_gflops_w": ("energy_efficiency_gflops_watts", "energy_efficiency"),
     "processor": ("processor",),
-    "interconnect": ("interconnect_family", "interconnect"),
+    "accelerator": ("accelerator_co_processor", "accelerator"),
+    "system_family": ("system_family",),
+    "interconnect_family": ("interconnect_family",),
+    "interconnect": ("interconnect",),
+    "continent": ("continent",),
+    "previous_rank": ("previous_rank",),
 }
 
 # Rmax / Rpeak : l'unité est dans l'en-tête, on convertit tout en TFlop/s.
@@ -50,28 +56,39 @@ TEXT_COLUMNS = (
     "manufacturer",
     "site",
     "country",
+    "continent",
     "segment",
     "processor",
+    "accelerator",
+    "system_family",
+    "interconnect_family",
     "interconnect",
 )
-INTEGER_COLUMNS = ("rank", "year", "cores")
+INTEGER_COLUMNS = ("rank", "previous_rank", "year", "cores")
+FLOAT_COLUMNS = ("power_kw", "energy_efficiency_gflops_w")
 REQUIRED_COLUMNS = ("rank", "manufacturer", "rmax_tflops")
 
 OUTPUT_COLUMNS = (
     "edition",
     "rank",
+    "previous_rank",
     "system_name",
     "computer",
     "manufacturer",
     "site",
     "country",
+    "continent",
     "year",
     "segment",
     "cores",
     "rmax_tflops",
     "rpeak_tflops",
     "power_kw",
+    "energy_efficiency_gflops_w",
     "processor",
+    "accelerator",
+    "system_family",
+    "interconnect_family",
     "interconnect",
     "source_file",
 )
@@ -175,7 +192,8 @@ def read_top500_file(path: str | Path) -> pd.DataFrame:
 
     out["rmax_tflops"] = _flops_column(df, "rmax")
     out["rpeak_tflops"] = _flops_column(df, "rpeak")
-    out["power_kw"] = _to_float(out["power_kw"])
+    for col in FLOAT_COLUMNS:
+        out[col] = _to_float(out[col])
     for col in INTEGER_COLUMNS:
         out[col] = _to_float(out[col]).round().astype("Int64")
     for col in TEXT_COLUMNS:

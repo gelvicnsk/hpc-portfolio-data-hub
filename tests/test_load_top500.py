@@ -91,7 +91,32 @@ def test_missing_power_becomes_null(sample_file: Path) -> None:
 def test_vendor_names_are_kept_raw(sample_file: Path) -> None:
     # Le regroupement Bull / Atos / Eviden est fait dans dbt, pas au parsing.
     df = read_top500_file(sample_file)
-    assert {"Bull SAS", "EVIDEN", "Atos", "Eviden"} <= set(df["manufacturer"])
+    assert {"Bull SAS", "EVIDEN", "Atos", "Bull"} <= set(df["manufacturer"])
+
+
+def test_interconnect_family_and_detail_are_both_kept(sample_file: Path) -> None:
+    # Format réel TOP500 : « Interconnect Family » (Gigabit Ethernet) ≠ « Interconnect » (Slingshot-11)
+    alpha = read_top500_file(sample_file).iloc[0]
+    assert alpha["interconnect_family"] == "Gigabit Ethernet"
+    assert alpha["interconnect"] == "Slingshot-11"
+
+
+def test_new_entry_has_null_previous_rank(sample_file: Path) -> None:
+    df = read_top500_file(sample_file)
+    assert df.loc[df["rank"] == 3, "previous_rank"].isna().all()
+    assert df.loc[df["rank"] == 2, "previous_rank"].iloc[0] == 3
+
+
+def test_energy_efficiency_matches_rmax_over_power(sample_file: Path) -> None:
+    # TFlop/s / kW = GFlops/W : la colonne officielle doit être cohérente avec le calcul
+    df = read_top500_file(sample_file).dropna(subset=["power_kw", "energy_efficiency_gflops_w"])
+    computed = df["rmax_tflops"] / df["power_kw"]
+    assert (computed - df["energy_efficiency_gflops_w"]).abs().max() < 0.01
+
+
+def test_unnamed_system_is_null(sample_file: Path) -> None:
+    df = read_top500_file(sample_file)
+    assert df.loc[df["rank"] == 6, "system_name"].isna().all()
 
 
 # --- variations de format ----------------------------------------------------------
